@@ -18,8 +18,21 @@ func main() {
 		if err != nil {
 			startingHeight = 4
 		}
-		createPiles(uint8(dimension), uint8(secondDimension), uint8(startingHeight))
+		grid := createPiles(uint8(dimension), uint8(secondDimension), uint8(startingHeight))
+		copyGrid(grid)
 	}
+}
+
+func copyGrid(original Grid) (duplicate Grid) {
+	duplicate = make([][]uint8, len(original))
+	for i := range original {
+		duplicateRow := make([]uint8, len(original[0]))
+		for j := range original[i] {
+			duplicateRow[j] = original[i][j]
+		}
+		duplicate[i] = duplicateRow
+	}
+	return
 }
 
 func parseArgs(args []string) (xDim, yDim, startingHeight uint8) {
@@ -47,9 +60,7 @@ func createPiles(xAxis, yAxis, height uint8) (grid Grid) {
 		grid[i] = make([]uint8, yAxis)
 		for cell, _ := range grid[i] {
 			grid[i][cell] = height
-			print(height)
 		}
-		println()
 	}
 	return
 }
