@@ -1,16 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 )
 
 func main() {
-	dimension, err := strconv.ParseInt(os.Args[1], 10, 8)
+	dimension, err := strconv.Atoi(os.Args[1])
 	if err != nil {
 		println("Error: could not get the dimensions for grid from args")
 	} else {
-		secondDimension, err := strconv.ParseInt(os.Args[2], 10, 8)
+		secondDimension, err := strconv.Atoi(os.Args[2])
 		if err != nil {
 			secondDimension = dimension
 		}
@@ -18,9 +19,47 @@ func main() {
 		if err != nil {
 			startingHeight = 4
 		}
-		grid := createPiles(uint8(dimension), uint8(secondDimension), uint8(startingHeight))
-		copyGrid(grid)
+		xString := strconv.Itoa(int(dimension))
+		yString := strconv.Itoa(int(secondDimension))
+		heightString := strconv.Itoa(int(startingHeight))
+		println("Creating grid of size " + xString + " x " + yString + " and height " + heightString)
+		createPiles(dimension, secondDimension, uint8(startingHeight))
+		fmt.Print(getValidNeighbors(dimension, secondDimension, 0, 0))
 	}
+}
+
+type Grid [][]uint8
+type Coordinate struct {
+	x, y int
+}
+
+//func (grid Grid) sift () () {
+//	reference := copyGrid(grid)
+//
+//}
+
+func getValidNeighbors(xMax, yMax, xPos, yPos int) (validNeighbors []Coordinate) {
+	top := Coordinate{xPos, yPos + 1}
+	bot := Coordinate{xPos, yPos - 1}
+	left := Coordinate{xPos - 1, yPos}
+	right := Coordinate{xPos + 1, yPos}
+	if top.isValidGridPosition(xMax, yMax) {
+		validNeighbors = append(validNeighbors, top)
+	}
+	if bot.isValidGridPosition(xMax, yMax) {
+		validNeighbors = append(validNeighbors, bot)
+	}
+	if left.isValidGridPosition(xMax, yMax) {
+		validNeighbors = append(validNeighbors, left)
+	}
+	if right.isValidGridPosition(xMax, yMax) {
+		validNeighbors = append(validNeighbors, right)
+	}
+	return
+}
+
+func (position Coordinate) isValidGridPosition(xMax, yMax int) bool {
+	return position.x < xMax && position.x > -1 && position.y < xMax && position.y > -1
 }
 
 func copyGrid(original Grid) (duplicate Grid) {
@@ -52,15 +91,17 @@ func parseNumOrUseDefault(toParse string, defaultNum uint8) (resultNum uint8) {
 	return
 }
 
-type Grid [][]uint8
-
-func createPiles(xAxis, yAxis, height uint8) (grid Grid) {
+func createPiles(xAxis, yAxis int, height uint8) (grid Grid) {
 	grid = make([][]uint8, xAxis)
-	for i, _ := range grid {
+	for i := range grid {
 		grid[i] = make([]uint8, yAxis)
-		for cell, _ := range grid[i] {
+		for cell := range grid[i] {
+			print(" ")
+			print(height)
+			print(" ")
 			grid[i][cell] = height
 		}
+		println()
 	}
 	return
 }
