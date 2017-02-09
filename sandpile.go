@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	//"fmt"
 	"os"
 	"strconv"
 )
@@ -24,7 +24,6 @@ func main() {
 		heightString := strconv.Itoa(int(startingHeight))
 		println("Creating grid of size " + xString + " x " + yString + " and height " + heightString)
 		createPiles(dimension, secondDimension, uint8(startingHeight))
-		fmt.Print(getValidNeighbors(dimension, secondDimension, 0, 0))
 	}
 }
 
@@ -38,11 +37,11 @@ type Coordinate struct {
 //
 //}
 
-func getValidNeighbors(xMax, yMax, xPos, yPos int) (validNeighbors []Coordinate) {
-	top := Coordinate{xPos, yPos + 1}
-	bot := Coordinate{xPos, yPos - 1}
-	left := Coordinate{xPos - 1, yPos}
-	right := Coordinate{xPos + 1, yPos}
+func (coordinate Coordinate) getValidNeighbors(xMax, yMax int) (validNeighbors []Coordinate) {
+	top := Coordinate{coordinate.x, coordinate.y + 1}
+	bot := Coordinate{coordinate.x, coordinate.y - 1}
+	left := Coordinate{coordinate.x - 1, coordinate.y}
+	right := Coordinate{coordinate.x + 1, coordinate.y}
 	if top.isValidGridPosition(xMax, yMax) {
 		validNeighbors = append(validNeighbors, top)
 	}
