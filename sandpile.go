@@ -23,7 +23,7 @@ func main() {
 		yString := strconv.Itoa(int(secondDimension))
 		heightString := strconv.Itoa(int(startingHeight))
 		println("Creating grid of size " + xString + " x " + yString + " and height " + heightString)
-		createPiles(dimension, secondDimension, uint8(startingHeight))
+		createGrid(dimension, secondDimension, uint8(startingHeight))
 	}
 }
 
@@ -31,11 +31,6 @@ type Grid [][]uint8
 type Coordinate struct {
 	x, y int
 }
-
-//func (grid Grid) sift () () {
-//	reference := copyGrid(grid)
-//
-//}
 
 func (coordinate Coordinate) getValidNeighbors(xMax, yMax int) (validNeighbors []Coordinate) {
 	top := Coordinate{coordinate.x, coordinate.y + 1}
@@ -61,7 +56,7 @@ func (position Coordinate) isValidGridPosition(xMax, yMax int) bool {
 	return position.x < xMax && position.x > -1 && position.y < xMax && position.y > -1
 }
 
-func copyGrid(original Grid) (duplicate Grid) {
+func (original Grid) clone() (duplicate Grid) {
 	duplicate = make([][]uint8, len(original))
 	for i := range original {
 		duplicateRow := make([]uint8, len(original[0]))
@@ -90,17 +85,13 @@ func parseNumOrUseDefault(toParse string, defaultNum uint8) (resultNum uint8) {
 	return
 }
 
-func createPiles(xAxis, yAxis int, height uint8) (grid Grid) {
+func createGrid(xAxis, yAxis int, height uint8) (grid Grid) {
 	grid = make([][]uint8, xAxis)
 	for i := range grid {
 		grid[i] = make([]uint8, yAxis)
 		for cell := range grid[i] {
-			print(" ")
-			print(height)
-			print(" ")
 			grid[i][cell] = height
 		}
-		println()
 	}
 	return
 }

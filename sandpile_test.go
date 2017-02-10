@@ -56,3 +56,26 @@ func TestGetValidNeighbors(t *testing.T) {
 		}
 	}
 }
+
+func TestCreateGrid(t *testing.T) {
+	grid := createGrid(8, 8, 4)
+	for xCoord := 0; xCoord < 8; xCoord++ {
+		for yCoord := 0; yCoord < 8; yCoord++ {
+			if grid[xCoord][yCoord] != uint8(4) {
+				t.Errorf("Wrong value at row %d col %d expected %d was %d", xCoord, yCoord, 4, grid[xCoord][yCoord])
+			}
+		}
+	}
+}
+
+func TestCloneGrid(t *testing.T) {
+	grid := createGrid(8, 8, 4)
+	clone := grid.clone()
+	for rowIndex, row := range grid {
+		for cellIndex, cell := range row {
+			if cell != clone[rowIndex][cellIndex] {
+				t.Errorf("Wrong value in clone at row %d col %d expected %d was %d", rowIndex, cellIndex, cell, clone[rowIndex][cellIndex])
+			}
+		}
+	}
+}
