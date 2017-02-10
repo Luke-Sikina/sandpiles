@@ -1,7 +1,6 @@
 package main
 
 import (
-	//"fmt"
 	"os"
 	"strconv"
 )
@@ -30,6 +29,16 @@ func main() {
 type Grid [][]uint8
 type Coordinate struct {
 	x, y int
+}
+
+func (center Coordinate) sift(reference *Grid, result Grid) {
+	if (*reference)[center.x][center.y] > 3 {
+		neighbors := center.getValidNeighbors(len(result), len(result[0]))
+		result[center.x][center.y] = result[center.x][center.y] - 4
+		for _, neighbor := range neighbors {
+			result[neighbor.x][neighbor.y] = result[neighbor.x][neighbor.y] + 1
+		}
+	}
 }
 
 func (coordinate Coordinate) getValidNeighbors(xMax, yMax int) (validNeighbors []Coordinate) {
