@@ -31,6 +31,15 @@ type Coordinate struct {
 	x, y int
 }
 
+func (original Grid) sift() {
+	reference := original.clone()
+	for x, row := range reference {
+		for y := range row {
+			Coordinate{x, y}.sift(&reference, original)
+		}
+	}
+}
+
 func (center Coordinate) sift(reference *Grid, result Grid) {
 	if (*reference)[center.x][center.y] > 3 {
 		neighbors := center.getValidNeighbors(len(result), len(result[0]))

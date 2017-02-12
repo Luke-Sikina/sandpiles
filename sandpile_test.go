@@ -81,9 +81,8 @@ func TestCloneGrid(t *testing.T) {
 }
 
 var singleSiftTestingData = []struct {
-	startingPoint Coordinate
-	startingGrid  Grid
-	resultGrid    Grid
+	startingPoint            Coordinate
+	startingGrid, resultGrid Grid
 }{
 	{Coordinate{1, 1},
 		Grid([][]uint8{
@@ -124,6 +123,42 @@ func TestSingleSift(t *testing.T) {
 	for _, data := range singleSiftTestingData {
 		reference := data.startingGrid.clone()
 		data.startingPoint.sift(&reference, data.startingGrid)
+		for x, row := range data.resultGrid {
+			for y, cell := range row {
+				if cell != data.startingGrid[x][y] {
+					t.Errorf("Wrong value in grid at %d, %d, expected %d was %d", x, y, cell, data.startingGrid[x][y])
+				}
+			}
+		}
+	}
+}
+
+var fullSiftTestingData = []struct {
+	startingGrid, resultGrid Grid
+}{
+	{
+		Grid([][]uint8{
+			{4, 4},
+			{4, 4}}),
+		Grid([][]uint8{
+			{2, 2},
+			{2, 2}})},
+	{
+		Grid([][]uint8{
+			{4, 4, 4, 4},
+			{4, 4, 4, 4},
+			{4, 4, 4, 4},
+			{4, 4, 4, 4}}),
+		Grid([][]uint8{
+			{2, 3, 3, 2},
+			{3, 4, 4, 3},
+			{3, 4, 4, 3},
+			{2, 3, 3, 2}})},
+}
+
+func TestFullSift(t *testing.T) {
+	for _, data := range fullSiftTestingData {
+		data.startingGrid.sift()
 		for x, row := range data.resultGrid {
 			for y, cell := range row {
 				if cell != data.startingGrid[x][y] {
