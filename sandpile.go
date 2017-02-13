@@ -1,29 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 )
 
 func main() {
-	dimension, err := strconv.Atoi(os.Args[1])
-	if err != nil {
-		println("Error: could not get the dimensions for grid from args")
-	} else {
-		secondDimension, err := strconv.Atoi(os.Args[2])
-		if err != nil {
-			secondDimension = dimension
-		}
-		startingHeight, err := strconv.ParseInt(os.Args[3], 10, 8)
-		if err != nil {
-			startingHeight = 4
-		}
-		xString := strconv.Itoa(int(dimension))
-		yString := strconv.Itoa(int(secondDimension))
-		heightString := strconv.Itoa(int(startingHeight))
-		println("Creating grid of size " + xString + " x " + yString + " and height " + heightString)
-		createGrid(dimension, secondDimension, uint8(startingHeight))
-	}
+	xDim, yDim, height := parseArgs(os.Args)
+	fmt.Printf("Creating grid of size %dx%d and height %d", xDim, yDim, height)
+	createGrid(xDim, yDim, height)
 }
 
 type Grid [][]uint8
@@ -91,18 +77,34 @@ func (original Grid) clone() (duplicate Grid) {
 	return
 }
 
-//TODO: Why am I not using this?
-func parseArgs(args []string) (xDim, yDim, startingHeight uint8) {
-	xDim = parseNumOrUseDefault(args[1], 8)
-	yDim = parseNumOrUseDefault(args[2], 8)
-	startingHeight = parseNumOrUseDefault(args[3], 8)
+func parseArgs(args []string) (xDim, yDim int, startingHeight uint8) {
+	switch len(args) {
+	case 0:
+		fallthrough
+	case 1:
+		xDim = 8
+		yDim = 8
+		startingHeight = uint8(8)
+	case 2:
+		xDim = parseNumOrUseDefault(args[1], 8)
+		yDim = 8
+		startingHeight = uint8(8)
+	case 3:
+		xDim = parseNumOrUseDefault(args[1], 8)
+		yDim = parseNumOrUseDefault(args[2], 8)
+		startingHeight = uint8(8)
+	default:
+		xDim = parseNumOrUseDefault(args[1], 8)
+		yDim = parseNumOrUseDefault(args[2], 8)
+		startingHeight = uint8(parseNumOrUseDefault(args[3], 8))
+	}
 	return
 }
 
-func parseNumOrUseDefault(toParse string, defaultNum uint8) (resultNum uint8) {
-	parsed, err := strconv.ParseInt(toParse, 10, 8)
+func parseNumOrUseDefault(toParse string, defaultNum int) (resultNum int) {
+	parsed, err := strconv.Atoi(toParse)
 	if err == nil {
-		resultNum = uint8(parsed)
+		resultNum = parsed
 	} else {
 		resultNum = defaultNum
 	}
