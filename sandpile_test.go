@@ -20,8 +20,7 @@ var gridPositionTestData = []struct {
 
 func TestIsValidGridPosition(t *testing.T) {
 	for _, scenario := range gridPositionTestData {
-		coordinate := Coordinate{scenario.xCoord, scenario.yCoord}
-		actual := coordinate.isValidGridPosition(scenario.xSize, scenario.ySize)
+		actual := isValidGridPosition(scenario.xCoord, scenario.yCoord, scenario.xSize, scenario.ySize)
 		if actual != scenario.expected {
 			t.Errorf("Error for isValidGridPosition: for coordinate %d %d, in grid of size %dx%d, expected %b", scenario.xCoord, scenario.yCoord, scenario.xSize, scenario.ySize, scenario.expected)
 		}
@@ -29,28 +28,27 @@ func TestIsValidGridPosition(t *testing.T) {
 }
 
 var getValidNeighborsTestData = []struct {
-	xMax, yMax        int
-	startingPoint     Coordinate
-	expectedNeighbors []Coordinate
+	xMax, yMax, startingX, startingY       int
+	expectedNeighborsX, expectedNeighborsY []int
 }{
-	{10, 10, Coordinate{1, 1}, []Coordinate{Coordinate{1, 2}, Coordinate{1, 0}, Coordinate{0, 1}, Coordinate{2, 1}}},
-	{10, 10, Coordinate{0, 1}, []Coordinate{Coordinate{0, 2}, Coordinate{0, 0}, Coordinate{1, 1}}},
-	{10, 10, Coordinate{0, 0}, []Coordinate{Coordinate{0, 1}, Coordinate{1, 0}}},
-	{10, 10, Coordinate{9, 9}, []Coordinate{Coordinate{9, 8}, Coordinate{8, 9}}},
+	{10, 10, 1, 1, []int{1, 1, 0, 2}, []int{2, 0, 1, 1}},
+	{10, 10, 0, 1, []int{0, 0, 1}, []int{2, 0, 1}},
+	{10, 10, 0, 0, []int{0, 1}, []int{1, 0}},
+	{10, 10, 9, 9, []int{9, 8}, []int{8, 9}},
 }
 
 func TestGetValidNeighbors(t *testing.T) {
 	for scenario, data := range getValidNeighborsTestData {
-		neighbors := data.startingPoint.getValidNeighbors(data.xMax, data.yMax)
-		if len(neighbors) != len(data.expectedNeighbors) {
+		neighborsX, neighborsY := getValidNeighbors(data.startingX, data.startingY, data.xMax, data.yMax)
+		if len(neighborsX) != len(data.expectedNeighborsX) {
 			t.Error("Too few/many neighbors")
 		} else {
-			for index, coord := range data.expectedNeighbors {
-				if coord.x != neighbors[index].x {
-					t.Errorf("Scenario %d: Wrong x value for coord number %d. Expected %d got %d", scenario, index, coord.x, neighbors[index].x)
+			for index, _ := range data.expectedNeighborsX {
+				if data.expectedNeighborsX[index] != neighborsX[index] {
+					t.Errorf("Scenario %d: Wrong x value for coord number %d. Expected %d got %d", scenario, index, data.expectedNeighborsX[index], neighborsX[index])
 				}
-				if coord.y != neighbors[index].y {
-					t.Errorf("Scenario %d: Wrong y value for coord number %d. Expected %d got %d", scenario, index, coord.y, neighbors[index].y)
+				if data.expectedNeighborsY[index] != neighborsY[index] {
+					t.Errorf("Scenario %d: Wrong y value for coord number %d. Expected %d got %d", scenario, index, data.expectedNeighborsY[index], neighborsY[index])
 				}
 			}
 		}
@@ -81,10 +79,10 @@ func TestCloneGrid(t *testing.T) {
 }
 
 var singleSiftTestingData = []struct {
-	startingPoint            Coordinate
+	startingX, startingY     int
 	startingGrid, resultGrid Grid
 }{
-	{Coordinate{1, 1},
+	{1, 1,
 		Grid([][]uint8{
 			{4, 4, 4, 4},
 			{4, 4, 4, 4},
@@ -95,7 +93,7 @@ var singleSiftTestingData = []struct {
 			{5, 0, 5, 4},
 			{4, 5, 4, 4},
 			{4, 4, 4, 4}})},
-	{Coordinate{0, 0},
+	{0, 0,
 		Grid([][]uint8{
 			{4, 4, 4, 4},
 			{4, 4, 4, 4},
@@ -106,7 +104,7 @@ var singleSiftTestingData = []struct {
 			{5, 4, 4, 4},
 			{4, 4, 4, 4},
 			{4, 4, 4, 4}})},
-	{Coordinate{3, 1},
+	{3, 1,
 		Grid([][]uint8{
 			{4, 4, 4, 4},
 			{4, 4, 4, 4},
@@ -122,7 +120,7 @@ var singleSiftTestingData = []struct {
 func TestSingleSift(t *testing.T) {
 	for _, data := range singleSiftTestingData {
 		reference := data.startingGrid.clone()
-		data.startingPoint.sift(&reference, data.startingGrid)
+		singleSift(data.startingX, data.startingY, &reference, data.startingGrid)
 		for x, row := range data.resultGrid {
 			for y, cell := range row {
 				if cell != data.startingGrid[x][y] {

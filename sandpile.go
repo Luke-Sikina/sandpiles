@@ -27,51 +27,56 @@ func main() {
 }
 
 type Grid [][]uint8
-type Coordinate struct {
-	x, y int
-}
 
 func (original Grid) sift() {
 	reference := original.clone()
 	for x, row := range reference {
 		for y := range row {
-			Coordinate{x, y}.sift(&reference, original)
+			singleSift(x, y, &reference, original)
 		}
 	}
 }
 
-func (center Coordinate) sift(reference *Grid, result Grid) {
-	if (*reference)[center.x][center.y] > 3 {
-		neighbors := center.getValidNeighbors(len(result), len(result[0]))
-		result[center.x][center.y] = result[center.x][center.y] - 4
-		for _, neighbor := range neighbors {
-			result[neighbor.x][neighbor.y] = result[neighbor.x][neighbor.y] + 1
+func singleSift(x, y int, reference *Grid, result Grid) {
+	if (*reference)[x][y] > 3 {
+		neighborsX, neighborsY := getValidNeighbors(x, y, len(result), len(result[0]))
+		result[x][y] = result[x][y] - 4
+		for i := range neighborsX {
+			result[neighborsX[i]][neighborsY[i]] = result[neighborsX[i]][neighborsY[i]] + 1
 		}
 	}
 }
 
-func (coordinate Coordinate) getValidNeighbors(xMax, yMax int) (validNeighbors []Coordinate) {
-	top := Coordinate{coordinate.x, coordinate.y + 1}
-	bot := Coordinate{coordinate.x, coordinate.y - 1}
-	left := Coordinate{coordinate.x - 1, coordinate.y}
-	right := Coordinate{coordinate.x + 1, coordinate.y}
-	if top.isValidGridPosition(xMax, yMax) {
-		validNeighbors = append(validNeighbors, top)
+func getValidNeighbors(x, y, xMax, yMax int) (validNeighborsX, validNeighborsY []int) {
+	topX := x
+	topY := y + 1
+	botX := x
+	botY := y - 1
+	leftX := x - 1
+	leftY := y
+	rightX := x + 1
+	rightY := y
+	if isValidGridPosition(topX, topY, xMax, yMax) {
+		validNeighborsX = append(validNeighborsX, topX)
+		validNeighborsY = append(validNeighborsY, topY)
 	}
-	if bot.isValidGridPosition(xMax, yMax) {
-		validNeighbors = append(validNeighbors, bot)
+	if isValidGridPosition(botX, botY, xMax, yMax) {
+		validNeighborsX = append(validNeighborsX, botX)
+		validNeighborsY = append(validNeighborsY, botY)
 	}
-	if left.isValidGridPosition(xMax, yMax) {
-		validNeighbors = append(validNeighbors, left)
+	if isValidGridPosition(leftX, leftY, xMax, yMax) {
+		validNeighborsX = append(validNeighborsX, leftX)
+		validNeighborsY = append(validNeighborsY, leftY)
 	}
-	if right.isValidGridPosition(xMax, yMax) {
-		validNeighbors = append(validNeighbors, right)
+	if isValidGridPosition(rightX, rightY, xMax, yMax) {
+		validNeighborsX = append(validNeighborsX, rightX)
+		validNeighborsY = append(validNeighborsY, rightY)
 	}
 	return
 }
 
-func (position Coordinate) isValidGridPosition(xMax, yMax int) bool {
-	return position.x < xMax && position.x > -1 && position.y < xMax && position.y > -1
+func isValidGridPosition(xPos, yPos, xMax, yMax int) bool {
+	return xPos < xMax && xPos > -1 && yPos < xMax && yPos > -1
 }
 
 func (original Grid) clone() (duplicate Grid) {
@@ -86,6 +91,7 @@ func (original Grid) clone() (duplicate Grid) {
 	return
 }
 
+//TODO: Why am I not using this?
 func parseArgs(args []string) (xDim, yDim, startingHeight uint8) {
 	xDim = parseNumOrUseDefault(args[1], 8)
 	yDim = parseNumOrUseDefault(args[2], 8)
