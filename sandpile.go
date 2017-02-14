@@ -3,10 +3,13 @@ package main
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"strconv"
 )
 
 func main() {
+	core := runtime.NumCPU()
+	fmt.Printf("There are %d cpus available. This uses one of them. Hmmm...\n", core)
 	xDim, yDim, height := parseArgs(os.Args)
 	fmt.Printf("Creating grid of size %dx%d and height %d\n", xDim, yDim, height)
 	grid := createGrid(xDim, yDim, height)
@@ -14,6 +17,9 @@ func main() {
 	passes := 1
 	for !grid.sift() {
 		passes++
+		if(passes % 100 == 0) {
+			fmt.Printf("Pass #%d\n", passes)
+		}
 	}
 	fmt.Printf("Finished in %d passes. Printing result\n", passes)
 	grid.print()
