@@ -8,19 +8,49 @@ import (
 
 func main() {
 	xDim, yDim, height := parseArgs(os.Args)
-	fmt.Printf("Creating grid of size %dx%d and height %d", xDim, yDim, height)
-	createGrid(xDim, yDim, height)
+	fmt.Printf("Creating grid of size %dx%d and height %d\n", xDim, yDim, height)
+	grid := createGrid(xDim, yDim, height)
+
+	passes := 1
+	for !grid.sift() {
+		passes++
+	}
+	fmt.Printf("Finished in %d passes. Printing result\n", passes)
+	grid.print()
 }
 
 type Grid [][]uint8
 
-func (original Grid) sift() {
+func (grid Grid) print() {
+	for _, row := range grid {
+		for _, cell := range row {
+			fmt.Printf(prettyPrintCell(cell))
+		}
+		fmt.Printf("\n")
+	}
+}
+
+func (grid Grid) equals(compareTo Grid) (equals bool) {
+	equals = len(grid) == len(compareTo) && len(grid[0]) == len(compareTo[0])
+	for x, row := range grid {
+		for y, height := range row {
+			equals = equals && height == compareTo[x][y]
+			if !equals {
+				return
+			}
+		}
+	}
+	return
+}
+
+func (original Grid) sift() bool {
 	reference := original.clone()
 	for x, row := range reference {
 		for y := range row {
 			singleSift(x, y, &reference, original)
 		}
 	}
+	return reference.equals(original)
 }
 
 func singleSift(x, y int, reference *Grid, result Grid) {
@@ -118,6 +148,20 @@ func createGrid(xAxis, yAxis int, height uint8) (grid Grid) {
 		for cell := range grid[i] {
 			grid[i][cell] = height
 		}
+	}
+	return
+}
+
+func prettyPrintCell(cell uint8) (text string) {
+	switch cell % 4 {
+	case 0:
+		text = "  "
+	case 1:
+		text = " o"
+	case 2:
+		text = " x"
+	case 3:
+		text = " *"
 	}
 	return
 }
