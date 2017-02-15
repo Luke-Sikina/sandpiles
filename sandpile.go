@@ -17,7 +17,7 @@ func main() {
 	passes := 1
 	for !grid.sift() {
 		passes++
-		if(passes % 100 == 0) {
+		if passes%100 == 0 {
 			fmt.Printf("Pass #%d\n", passes)
 		}
 	}
@@ -26,6 +26,35 @@ func main() {
 }
 
 type Grid [][]uint8
+
+type Border struct {
+	cells            Grid
+	locker           chan bool
+}
+
+/**
+Thread safe borders for sub grid communication
+*/
+func NewBorder(xDim, yDim int) *Border {
+	grid := createGrid(xDim, yDim, 0)
+	lock := make(chan bool, 1)
+	border := Border{cells: grid, locker: lock}
+	return &border
+}
+
+func (border Border) lock() {
+	border.locker <- true
+}
+
+func (border Border) release() {
+	<-border.locker
+}
+
+func (border *Border) incrementCell(x, y int) {
+	border.lock()
+	border.cells[x][y]++
+	border.release()
+}
 
 func (grid Grid) print() {
 	for _, row := range grid {
