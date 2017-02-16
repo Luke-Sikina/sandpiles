@@ -168,19 +168,19 @@ func TestFullSift(t *testing.T) {
 }
 
 func TestIncrementBorder(t *testing.T) {
-	border := NewBorder(15, 2)
+	border := NewBorder(15, 2, 8)
 
-	asyncIncrement := func (signal chan bool, object *Border, x, y int) {
+	asyncIncrement := func(signal chan bool, object *Border, x, y int) {
 		object.incrementCell(x, y)
 		signal <- true
 	}
-	channel := make(chan  bool, 10)
+	channel := make(chan bool, 10)
 	calls := 9
-	for count := 0; count < calls; count ++ {
+	for count := 0; count < calls; count++ {
 		go asyncIncrement(channel, border, 14, 0)
-		<- channel
+		<-channel
 	}
-	if border.cells[14][0] != uint8(calls) {
+	if border.cells[14][0] != uint8(calls + 8) {
 		t.Errorf("Wrong cell value. Expected %d got %d", calls, border.cells[14][0])
 	}
 }

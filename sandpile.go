@@ -27,16 +27,80 @@ func main() {
 
 type Grid [][]uint8
 
+/**
+Assumption: since we're only splitting the grid into 4 parts,
+each subgrid has 2 borders shared with one other subgrid,
+and one border shared with the other 3 subgrids
+*/
+type SuperGrid struct {
+	northWest, northEast, southWest, southEast SubGrid
+	northB, southB, eastB, westB, centerB      Border
+}
+
+type BorderCode int
+
+const (
+	north  BorderCode = iota
+	south  BorderCode = iota
+	east   BorderCode = iota
+	west   BorderCode = iota
+	center BorderCode = iota
+)
+
+type SubGrid struct {
+	core    [][]uint8
+	borders map[BorderCode]*Border
+}
+
+/**
+Visualization of the structure (+ = Border):
+|-----++-----|
+| sub ++ sub |
+|     ++     |
+|++++++++++++|
+|     ++     |
+| sub ++ sub |
+|-----++-----|
+*/
+func NewSuperGrid(xAxis, yAxis int, height uint8) (grid *SuperGrid) {
+	centerB := NewBorder(2, 2, height)
+	northB := NewBorder(2, yAxis/2-2, height)
+	southB := NewBorder(2, yAxis/2-2, height)
+	eastB := NewBorder(xAxis/2-2, 2, height)
+	westB := NewBorder(xAxis/2-2, 2, height)
+
+	grid.northWest.borders[north] = northB
+	grid.northWest.borders[west] = westB
+	grid.northWest.borders[center] = centerB
+	grid.northWest.core = createGrid(xAxis/2-1, yAxis/2-1, height)
+
+	grid.northEast.borders[north] = northB
+	grid.northEast.borders[east] = eastB
+	grid.northEast.borders[center] = centerB
+	grid.northEast.core = createGrid(xAxis/2-1, yAxis/2-1, height)
+
+	grid.southWest.borders[south] = southB
+	grid.southWest.borders[west] = westB
+	grid.southWest.borders[center] = centerB
+	grid.southWest.core = createGrid(xAxis/2-1, yAxis/2-1, height)
+
+	grid.southEast.borders[south] = southB
+	grid.southEast.borders[east] = eastB
+	grid.southEast.borders[center] = centerB
+	grid.southEast.core = createGrid(xAxis/2-1, yAxis/2-1, height)
+	return
+}
+
 type Border struct {
-	cells            Grid
-	locker           chan bool
+	cells  Grid
+	locker chan bool
 }
 
 /**
 Thread safe borders for sub grid communication
 */
-func NewBorder(xDim, yDim int) *Border {
-	grid := createGrid(xDim, yDim, 0)
+func NewBorder(xDim, yDim int, height uint8) *Border {
+	grid := createGrid(xDim, yDim, height)
 	lock := make(chan bool, 1)
 	border := Border{cells: grid, locker: lock}
 	return &border
