@@ -52,6 +52,14 @@ type SubGrid struct {
 	borders map[BorderCode]*Border
 }
 
+func (grid *SubGrid) incrementCell(x, y int) {
+	grid[x][y]++
+}
+
+func (grid *SubGrid) siftCell(x, y int) {
+	grid[x][y] = grid[x][y] - 4
+}
+
 /**
 Visualization of the structure (+ = Border):
 |-----++-----|
@@ -117,6 +125,12 @@ func (border Border) release() {
 func (border *Border) incrementCell(x, y int) {
 	border.lock()
 	border.cells[x][y]++
+	border.release()
+}
+
+func (border *Border) siftCell(x, y int) {
+	border.lock()
+	border.cells[x][y] = border.cells[x][y] - 4
 	border.release()
 }
 

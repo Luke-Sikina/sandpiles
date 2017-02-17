@@ -180,7 +180,7 @@ func TestIncrementBorder(t *testing.T) {
 		go asyncIncrement(channel, border, 14, 0)
 		<-channel
 	}
-	if border.cells[14][0] != uint8(calls + 8) {
+	if border.cells[14][0] != uint8(calls+8) {
 		t.Errorf("Wrong cell value. Expected %d got %d", calls, border.cells[14][0])
 	}
 }
